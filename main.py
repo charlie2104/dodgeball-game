@@ -7,7 +7,7 @@ width  = 800
 height = 600
 
 clock = pygame.time.Clock()
-
+gameover = False
 
 #info for characters
 cx = width/2
@@ -31,14 +31,33 @@ num_of_dodgeballs = 5
 #colours  R   G   B
 black = (000,000,000)
 white = (255,255,255)
+red = (255,000,000)
+
+font = pygame.font.SysFont(None,25)
 
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption('dodge Ball')
 
+
+def text_object(text,color):
+    textSurface = font.render(text, True, color)
+    return textSurface, textSurface.get_rect()
+def message_to_screen(msg,color):
+    textSurf, textRect = text_object(msg, color)
+    textRect.center = (width/2), (height/2)
+    screen.blit(textSurf, textRect)
+    
 for i in range (num_of_dodgeballs):
     dx = random.randint(0,width - dodgeball_size)
     dodgeballs.append([dodgeball_img, dx, dy,4])
     
+def health_bar():
+    global health
+    
+    pygame.draw.rect(screen,black,[11,11,health*4+1, 31])
+    pygame.draw.rect(screen, red, [10, 10, health*4, 30])
+
+
 
 def draw_dodgeballs():
     for dodgeball in dodgeballs:
@@ -58,7 +77,7 @@ def move_dodgeballs():
                 dx = random.randint(0,width - dodgeball_size)
                 dodgeball[1] = dx
                 dodgeball[2] = -60
-                health-=1
+                health -= 5
                 print (health)
 
 
@@ -90,15 +109,36 @@ def check_all_events():
             if event.key == pygame.K_RIGHT:
                 right = True
 
+def game_over():
+    global gameover, gameExit
+    while gameover == True:
+        screen.fill(white)
+        message_to_screen('you died',red)
+        pygame.display.update()
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_c:
+                    health = 20
+                    gameover = False
+                    gameloop()
+                if event.key == pygame.K_q:
+                    pygame.quit()
+                    quit()
+                    
 
 def gameloop():
-
-    global cx, cy, speed, left, right, dx, character_size, dy, dodge_col_x, dodge_col_y,dodge_split
+    global cx, cy, speed, left, right, dx, character_size, dy, dodge_col_x, dodge_col_y,dodge_split,gameover
     gameExit =  False
-    
+
     while not gameExit:
+        game_over() 
         screen.fill(white)
         check_all_events()
+                  
     
         if cx < width - character_size:
             if right:
@@ -114,8 +154,9 @@ def gameloop():
         pygame.draw.rect(screen, black, [cx, cy, character_size, character_size])
         draw_dodgeballs()
         move_dodgeballs()
-
-
+        health_bar()
+        if health <= 0:
+            gameover = True
         #dodge_split = str(dodgeballs).split(",")
 
 
