@@ -33,18 +33,27 @@ black = (000,000,000)
 white = (255,255,255)
 red = (255,000,000)
 
-font = pygame.font.SysFont(None,25)
+smallfont = pygame.font.SysFont("comicsansms",25)
+medfont = pygame.font.SysFont("comicsansms",50)
+largefont = pygame.font.SysFont("comicsansms",80)
 
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption('dodge Ball')
 
 
-def text_object(text,color):
-    textSurface = font.render(text, True, color)
+def text_object(text,color, size):
+    if size == "small":
+        textSurface = smallfont.render(text, True, color)
+    elif size == "medium":
+        textSurface = medfont.render(text, True, color)
+    elif size == "large":
+        textSurface = largefont.render(text, True, color)
     return textSurface, textSurface.get_rect()
-def message_to_screen(msg,color):
-    textSurf, textRect = text_object(msg, color)
-    textRect.center = (width/2), (height/2)
+
+
+def message_to_screen(msg,color, y_displace = 0, size = "small"):
+    textSurf, textRect = text_object(msg, color, size)
+    textRect.center = (width/2), (height/2)+y_displace
     screen.blit(textSurf, textRect)
     
 for i in range (num_of_dodgeballs):
@@ -56,6 +65,8 @@ def health_bar():
     
     pygame.draw.rect(screen,black,[11,11,health*4+1, 31])
     pygame.draw.rect(screen, red, [10, 10, health*4, 30])
+    text_health = smallfont.render(str(health)+'/100',True,black)
+    screen.blit(text_health, [health*4+20,5])
 
 
 
@@ -78,7 +89,7 @@ def move_dodgeballs():
                 dodgeball[1] = dx
                 dodgeball[2] = -60
                 health -= 5
-                print (health)
+               
 
 
         
@@ -109,33 +120,96 @@ def check_all_events():
             if event.key == pygame.K_RIGHT:
                 right = True
 
-def game_over():
-    global gameover, gameExit
-    while gameover == True:
-        screen.fill(white)
-        message_to_screen('you died',red)
-        pygame.display.update()
-        for event in pygame.event.get():
+##def game_over():
+##    global gameover, gameExit
+##    while gameover == True:
+##        screen.fill(white)
+##        message_to_screen('you died',red,-25,'large')
+##        message_to_screen('press q to quit',black,40,'small')
+##        pygame.display.update()
+##        for event in pygame.event.get():
+##            if event.type == pygame.QUIT:
+##                pygame.quit()
+##                quit()
+##            if event.type == pygame.KEYDOWN:
+##                if event.key == pygame.K_c:
+##                    health = 100
+##                    gameover = False
+##                    gameloop()
+##                    break
+##                if event.key == pygame.K_q:
+##                    pygame.quit()
+##                    quit()
 
+                    
+def game_intro():
+    intro = True
+    while intro:
+        screen.fill(white)
+        message_to_screen('welcome to dodgeball dash',black,-100,'medium')
+        message_to_screen('press c to play',red,0,'medium')
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_c:
-                    health = 20
-                    gameover = False
+                    intro = False
                     gameloop()
                 if event.key == pygame.K_q:
                     pygame.quit()
                     quit()
-                    
 
+
+        pygame.display.update()
+        clock.tick(15)
+    
+
+    
 def gameloop():
-    global cx, cy, speed, left, right, dx, character_size, dy, dodge_col_x, dodge_col_y,dodge_split,gameover
+    global cx, cy, speed, left, right, dx, character_size, dy, dodge_col_x, dodge_col_y,dodge_split,gameover,health
     gameExit =  False
 
+#info for characters
+    cx = width/2
+    cy = height - 50
+    speed = 20
+    character_size = 32
+    left = False
+    right = False
+    health = 100
+
+#info for dodgeballs
+    dx = -60
+    dy = 20
+    dodgeball_speed = 0.5
+    dodgeball_size = 50
+    dodgeballs = []
+    dodgeball_img = pygame.image.load('dodgeball.png')
+    dodge_col_x = 1
+    dodge_col_y = 2
+    num_of_dodgeballs = 5
+
     while not gameExit:
-        game_over() 
+        if gameover == True:
+            screen.fill(white)
+            message_to_screen('you died',red,-25,'large')
+            message_to_screen('press q to quit',black,40,'small')
+            pygame.display.update()
+            while gameover == True:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        quit()
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_c:
+                            health = 100
+                            gameover = False
+                            gameloop()
+                            break
+                        if event.key == pygame.K_q:
+                            pygame.quit()
+                            quit()
         screen.fill(white)
         check_all_events()
                   
@@ -184,5 +258,5 @@ def gameloop():
 
     pygame.quit
     quit()
-    
-gameloop()
+game_intro()    
+
