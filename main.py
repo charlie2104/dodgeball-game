@@ -18,6 +18,7 @@ left = False
 right = False
 health = 100
 #info for dodgeballs
+
 dx = -60
 dy = 20
 dodgeball_speed = 0.5
@@ -32,10 +33,13 @@ num_of_dodgeballs = 5
 black = (000,000,000)
 white = (255,255,255)
 red = (255,000,000)
+green = (000,200,000)
+light_green = (000,255,000)
+dark_red = (200,000,000)
 
-smallfont = pygame.font.SysFont("comicsansms",25)
-medfont = pygame.font.SysFont("comicsansms",50)
-largefont = pygame.font.SysFont("comicsansms",80)
+smallfont = pygame.font.Font("comic.ttf",25)
+medfont = pygame.font.Font("comic.ttf",50)
+largefont = pygame.font.Font("comic.ttf",80)
 
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption('dodge Ball')
@@ -56,9 +60,9 @@ def message_to_screen(msg,color, y_displace = 0, size = "small"):
     textRect.center = (width/2), (height/2)+y_displace
     screen.blit(textSurf, textRect)
     
-for i in range (num_of_dodgeballs):
-    dx = random.randint(0,width - dodgeball_size)
-    dodgeballs.append([dodgeball_img, dx, dy,4])
+##for i in range (num_of_dodgeballs):
+##    dx = random.randint(0,width - dodgeball_size)
+##    dodgeballs.append([dodgeball_img, dx, dy,4])
     
 def health_bar():
     global health
@@ -147,27 +151,45 @@ def game_intro():
     while intro:
         screen.fill(white)
         message_to_screen('welcome to dodgeball dash',black,-100,'medium')
-        message_to_screen('press c to play',red,0,'medium')
+        message_to_screen('dodge the balls and survive as long as possible',red,0,'small')
+
+        mouse = pygame.mouse.get_pos()
+
+        text_start = medfont.render('Start!',True,black)
+        text_quit = medfont.render('Quit',True,black)
+
+
+        pygame.draw.rect(screen,green,[100,400,230,70])
+        pygame.draw.rect(screen,dark_red,[470,400,230,70])
+
+        if 100+230 > mouse[0] > 100 and 400+70 > mouse[1] > 400:
+            pygame.draw.rect(screen,light_green,[105,405,220,60])
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    intro = False
+                    gameloop()
+        if 470+230 > mouse[0] > 470 and 400+70 > mouse[1] > 400:
+            pygame.draw.rect(screen,red,[475,405,220,60])
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    pygame.quit()
+                    quit()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_c:
-                    intro = False
-                    gameloop()
-                if event.key == pygame.K_q:
-                    pygame.quit()
-                    quit()
 
 
+        screen.blit(text_start, [140,395,230,70])
+        screen.blit(text_quit, [530,395,230,70])
         pygame.display.update()
         clock.tick(15)
     
 
     
 def gameloop():
-    global cx, cy, speed, left, right, dx, character_size, dy, dodge_col_x, dodge_col_y,dodge_split,gameover,health
+    global cx, cy, speed, left, right, dx, character_size, dy, dodge_col_x, dodge_col_y,dodge_split,gameover,health,dodgeballs
     gameExit =  False
 
 #info for characters
@@ -178,8 +200,8 @@ def gameloop():
     left = False
     right = False
     health = 100
-
 #info for dodgeballs
+
     dx = -60
     dy = 20
     dodgeball_speed = 0.5
@@ -190,11 +212,15 @@ def gameloop():
     dodge_col_y = 2
     num_of_dodgeballs = 5
 
+    for i in range (num_of_dodgeballs):
+        dx = random.randint(0,width - dodgeball_size)
+        dodgeballs.append([dodgeball_img, dx, dy,4])
+
     while not gameExit:
         if gameover == True:
             screen.fill(white)
             message_to_screen('you died',red,-25,'large')
-            message_to_screen('press q to quit',black,40,'small')
+            message_to_screen('press q to quit or c to play again',black,40,'small')
             pygame.display.update()
             while gameover == True:
                 for event in pygame.event.get():
